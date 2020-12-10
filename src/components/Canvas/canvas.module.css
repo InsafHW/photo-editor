@@ -1,0 +1,15 @@
+.Canvas {
+  margin-top: 90px;
+  min-height: 90.4vh;
+  width: 95%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ccc;
+  overflow: auto;
+}
+
+.Canvas canvas {
+  background-color: #fff;
+  z-index: 500;
+}

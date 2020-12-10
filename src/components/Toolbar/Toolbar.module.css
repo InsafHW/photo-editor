@@ -1,0 +1,106 @@
+.Toolbar {
+  margin-top: 90px;
+  /* min-height: 90vh; */
+  width: 5%;
+  background-color: #282c34;
+  display: flex;
+  flex-direction: column;
+  border-top: 3px solid rebeccapurple;
+  align-items: center;
+}
+
+.tool {
+  transition: all 0.2s ease-in;
+  margin-bottom: 20px;
+  color: white;
+  position: relative;
+}
+
+.tool:first-child {
+  margin-top: 25px;
+}
+
+.tool:hover {
+  cursor: pointer;
+  transform: scale(1.2);
+}
+
+.Toolbar .active {
+  color: #7fffd4;
+}
+
+.FilterMenu {
+  position: absolute;
+  right: 6%;
+  top: 30%;
+}
+
+.Filter {
+  width: 35px;
+  height: 35px;
+  border-radius: 100%;
+  cursor: pointer;
+  background-color: #fff;
+  margin-bottom: 20px;
+  transition: all 0.2s linear;
+}
+
+.Filter:hover {
+  transform: scale(1.1);
+}
+
+.Grey {
+  background-color: #666666;
+}
+
+.Red {
+  background-color: red;
+}
+
+.Blue {
+  background-color: blue;
+}
+
+.Green {
+  background-color: green;
+}
+
+.FillColorMenu {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.textMenu {
+  width: 100px;
+  position: absolute;
+  left: 250px;
+  bottom: 30px;
+}
+
+.textMenu span {
+  position: absolute;
+  display: block;
+  width: 120px;
+  font-size: 15px;
+}
+
+.textMenu input[type='text'] {
+  border-radius: 4px;
+  height: 40px;
+  font-size: 20px;
+  padding: 0px 10px;
+  outline: none;
+  border: none;
+}
+
+.textMenu input[type='number'] {
+  margin-left: 120px;
+  border-radius: 4px;
+  height: 30px;
+  width: 50px;
+  text-align: center;
+  padding: 0px 10px;
+  outline: none;
+  border: none;
+}
