@@ -208,7 +208,7 @@ const Canvas = (props: any) => {
         ctx?.strokeRect(props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, props.selectedObj.size.width, props.selectedObj.size.height);
         break;
       case 'image':
-        if (img.current) {
+        if (img.current && img.current.src === props.selectedObj.src || img.current && !props.selectedObj.src) {
           ctx?.drawImage(img.current, props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, img.current.width, img.current.height)
         } else {
             const image = new Image();
@@ -439,57 +439,55 @@ const Canvas = (props: any) => {
         }}
         onMouseUp={(e) => {
           const loc = getMousePosition(e.pageX, e.pageY);
-          if (movedelta.current === 0 && drawing) {
-            const ctx = canvasEl.current?.getContext('2d');
+          const ctx = canvasEl.current?.getContext('2d');
+          if (movedelta.current === 0 && drawing && props.selectedObj) {
+            drawSelectedObject();
+          }
+          if (movedelta.current !== 0) {
+            if (img.current && inFigure) {
+              const object = {
+                topLeft: {
+                  x: shapeBorder.current.left,
+                  y: shapeBorder.current.top
+                },
+                size: {
+                  width: img.current.width,
+                  height: img.current.height
+                },
+                src: img.current.src,
+                type: 'image'
+              }
+              props.changeSelectedObject(object);
+            }
+            if (drawing) {
+              ctx?.clearRect(0, 0, props.width, props.height);
+              ctx?.putImageData(props.data, 0, 0);
+              if (img.current) {
+                ctx?.drawImage(img.current, props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, img.current.width, img.current.height);
+                img.current = null;
+              }
               if (props.selectedObj) {
                 drawSelectedObject();
               }
-          }
-          if (movedelta.current !== 0 && img.current && inFigure) {
-            const object = {
-              topLeft: {
-                x: shapeBorder.current.left,
-                y: shapeBorder.current.top
-              },
-              size: {
-                width: img.current.width,
-                height: img.current.height
-              },
-              src: img.current.src,
-              type: 'image'
+              const imgData = ctx?.getImageData(0, 0, props.data.width, props.data.height);
+              props.putInHistory(props.data);
+              props.saveImageData(imgData);
             }
-            props.changeSelectedObject(object);
-          }
-          if (movedelta.current !== 0 && drawing) {
-            const ctx = canvasEl.current?.getContext('2d');
-            ctx?.clearRect(0, 0, props.width, props.height);
-            ctx?.putImageData(props.data, 0, 0);
-            if (img.current) {
-              ctx?.drawImage(img.current, props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, img.current.width, img.current.height);
-              img.current = null;
+            if (resizing && props.selectedObj && props.selectedObj.type === 'image' && img.current && loc) {
+              console.log('[IMAGE UP]', shapeBorder.current)
+              img.current.width = shapeBorder.current.width;
+              img.current.height = shapeBorder.current.height;
+              ctx?.drawImage(img.current, shapeBorder.current.left, shapeBorder.current.top, shapeBorder.current.width, shapeBorder.current.height);
             }
-            if (props.selectedObj) {
-              drawSelectedObject();
+            else if (loc && (drawing || resizing)) {
+              console.log('[CHANGED_OBJECT]')
+              const object = makeFigure(props.currentTool);
+              props.changeSelectedObject(object);
+            } else if (movedelta.current !== 0 && loc && inFigure) {
+              console.log('[CHANGED_OBJECT]')
+              const object = makeFigure(props.selectedObj.type);
+              props.changeSelectedObject(object);
             }
-            const imgData = ctx?.getImageData(0, 0, props.data.width, props.data.height);
-            props.putInHistory(props.data);
-            props.saveImageData(imgData);
-          }
-          if (movedelta.current !== 0 && resizing && props.selectedObj && props.selectedObj.type === 'image' && img.current && loc) {
-            const ctx = canvasEl.current?.getContext('2d');
-            console.log('[IMAGE UP]', shapeBorder.current)
-            img.current.width = shapeBorder.current.width;
-            img.current.height = shapeBorder.current.height;
-            ctx?.drawImage(img.current, shapeBorder.current.left, shapeBorder.current.top, shapeBorder.current.width, shapeBorder.current.height);
-          }
-          else if (movedelta.current !== 0 && loc && (drawing || resizing)) {
-            console.log('[CHANGED_OBJECT]')
-            const object = makeFigure(props.currentTool);
-            props.changeSelectedObject(object);
-          } else if (movedelta.current !== 0 && loc && inFigure) {
-            console.log('[CHANGED_OBJECT]')
-            const object = makeFigure(props.selectedObj.type);
-            props.changeSelectedObject(object);
           }
           movedelta.current = 0;
           resizePos.current = 0;
