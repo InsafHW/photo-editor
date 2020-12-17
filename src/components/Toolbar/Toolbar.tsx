@@ -32,20 +32,42 @@ const Toolbar = (props: any) => {
       break;
   }
 
-  const changeCol = (color: any) => {
-    console.log(color)
-  }
-
   return (
     <React.Fragment>
       <div className={classes.Toolbar}>
-        <IoTriangleOutline className={[classes.tool, trCls, classes.triangle].join(' ')} size="2em" onClick={() => props.changeTool(Tool.triangle)} />
-        <IoEllipseOutline className={[classes.tool, crcCls].join(' ')} size="2em" onClick={() => props.changeTool(Tool.ellipse)}/>
-        <IoSquareOutline className={[classes.tool, rectCls].join(' ')} size="2em" onClick={() => props.changeTool(Tool.rectangle)}/>
-        <BiText className={[classes.tool, textCls].join(' ')} size="2em" onClick={() => props.changeTool(Tool.text)}/>
-        <IoColorFilterOutline className={classes.tool} size="2em" onClick={() => setShowFilters(!showFilters)}/>
-        <IoCutOutline className={classes.tool} size="2em" onClick={() => props.tool === 'area' ? alert('Обрезано!') : alert('Выделите область!')}/>
-        <BiSelection className={[classes.tool, areaCls].join(' ')} size="2em" onClick={() => props.changeTool(Tool.area)}/>
+        <IoTriangleOutline 
+            className={[classes.tool, trCls, classes.triangle].join(' ')} 
+            size="2em" onClick={() => props.changeTool(Tool.triangle)} 
+        />
+        <IoEllipseOutline 
+            className={[classes.tool, crcCls].join(' ')} 
+            size="2em" 
+            onClick={() => props.changeTool(Tool.ellipse)}
+        />
+        <IoSquareOutline 
+            className={[classes.tool, rectCls].join(' ')} 
+            size="2em" 
+            onClick={() => props.changeTool(Tool.rectangle)}
+        />
+        <BiText 
+            className={[classes.tool, textCls].join(' ')} 
+            size="2em" 
+            onClick={() => props.changeTool(Tool.text)}/>
+        <IoColorFilterOutline 
+            className={classes.tool} 
+            size="2em" 
+            onClick={() => setShowFilters(!showFilters)}
+        />
+        <IoCutOutline 
+            className={classes.tool} 
+            size="2em" 
+            onClick={() => props.tool === 'area' ? props.deleteSelectedArea() : alert('Выделите область!')}
+        />
+        <BiSelection 
+            className={[classes.tool, areaCls].join(' ')} 
+            size="2em" 
+            onClick={() => props.changeTool(Tool.area)}
+        />
     </div>
     {showFilters ? (
       <div className={classes.FilterMenu}>

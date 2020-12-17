@@ -1,3 +1,4 @@
+import { stat } from 'fs';
 import { Editor, Tool } from '../../modelsTS/Editor';
 import { Filter } from '../../modelsTS/Filter';
 
@@ -14,6 +15,7 @@ const initialState: Editor = {
 const reducer = (state = initialState, action: any) => {
   switch (action.type) {
     case actionTypes.CHANGE_SELECTED_OBJECT:
+      console.log(action.newObject)
       return {
         ...state,
         selectedObject: { ...action.newObject }
@@ -30,26 +32,17 @@ const reducer = (state = initialState, action: any) => {
         canvas: action.data
       }
     case actionTypes.DELETE_SELECTED_AREA:
-      const tempCanvas = document.createElement('canvas');
-      const tempCtx = tempCanvas.getContext('2d');
-      let newData;
-      const data = {...state.canvas}
-      if (state.selectedObject) {
-        for (let i = state.selectedObject.topLeft.x; i < state.selectedObject.topLeft.x + state.selectedObject.size.width; i++) {
-          data.data[i] = 255;
-          data.data[i + 1] = 255;
-          data.data[i + 2] = 255;
-        }
-        for (let i = state.selectedObject.topLeft.y; i < state.selectedObject.topLeft.y + state.selectedObject.size.height; i++) {
-          data.data[i] = 255;
-          data.data[i + 1] = 255;
-          data.data[i + 2] = 255;
+      const canvas: HTMLCanvasElement | null = document.querySelector('#canvas');
+      if (canvas && state.selectedObject) {
+        const ctx = canvas.getContext('2d')
+        ctx?.clearRect(state.selectedObject.topLeft.x, state.selectedObject.topLeft.y, state.selectedObject.size.width, state.selectedObject.size.height)
+        const newData = ctx?.getImageData(0, 0, canvas.width, canvas.height);
+        return {
+          ...state,
+          canvas: newData
         }
       }
-      return {
-        ...state,
-        canvas: data
-      }
+      return state;
     case actionTypes.APPLY_FILTER:
       console.log(action)
       const newImageData: ImageData = {...state.canvas};

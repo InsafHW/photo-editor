@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import classes from './ImportPhotoFromPC.module.css'
 import changeSelectedObject from "../../../functionsTS/ChangeSelectedObject"
 import {ImageUI} from "../../../modelsTS/ImagUI"
+import { read, stat } from 'fs'
 
 const importPhotoFromPC = (props: any) => {
   const importHandler = (e: any) => {
@@ -13,41 +14,59 @@ const importPhotoFromPC = (props: any) => {
       if (!reader) return;
       reader.readAsDataURL(file)
       reader.addEventListener("load", () => {
-        let url = ''
-        if (reader.result) {
-          url = reader.result.toString()
+        if (!reader.result) {
+          return;
         }
+        let url = reader.result?.toString()
         const image = new Image();
         image.src = url;
         const canv = document.querySelector('#canvas') as HTMLCanvasElement;
         const ctx = canv.getContext('2d');
+        ctx?.clearRect(0, 0, canv.width, canv.height);
+        ctx?.putImageData(props.canvas, 0, 0);
+        // ctx?.fillText('PRIVE', 10, 200)
         if (props.selectedObj) {
           if (ctx) {
             ctx.fillStyle = props.selectedObj.fillColor;
           }
-          const object = {
-            topLeft: {
-              x: props.selectedObj.topLeft.x,
-              y: props.selectedObj.topLeft.y
-            },
-            size: {
-              width: props.selectedObj.size.width,
-              height: props.selectedObj.size.height
+          if (props.selectedObj.type === 'image') {
+            console.log('[OLD IMAGE]', props.selectedObj)
+            const image = new Image();
+            image.src = props.selectedObj.src;
+            image.onload = () => {
+              ctx?.drawImage(image, props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, props.selectedObj.size.width, props.selectedObj.size.height)
+              const imgData = ctx?.getImageData(0, 0, canv.width, canv.height);
+              props.saveImageData(imgData);
             }
+          } else if (props.selectedObj.type === 'text') {
+            console.log('[TEXT]', props.selectedObj)
+            // ctx?.fillText('PRIVE', 10, 200)
+            ctx?.fillText(props.selectedObj.text, props.selectedObj.topLeft.x, props.selectedObj.topLeft.y)
+          } else {
+            const object = {
+              topLeft: {
+                x: props.selectedObj.topLeft.x,
+                y: props.selectedObj.topLeft.y
+              },
+              size: {
+                width: props.selectedObj.size.width,
+                height: props.selectedObj.size.height
+              }
+            }
+            switch (props.selectedObj.type) {
+              case 'rectangle':
+                drawRectangle(object, ctx);
+                break;
+              case 'triangle':
+                drawTriangle(object, ctx);
+                break;
+              case 'ellipse':
+                drawEllipse(object, ctx);
+                break;
+              default:
+                break;
+            }   
           }
-          switch (props.selectedObj.type) {
-            case 'rectangle':
-              drawRectangle(object, ctx);
-              break;
-            case 'triangle':
-              drawTriangle(object, ctx);
-              break;
-            case 'ellipse':
-              drawEllipse(object, ctx);
-              break;
-            default:
-              break;
-          }   
           const imgData = ctx?.getImageData(0, 0, canv.width, canv.height);
           props.saveImageData(imgData);
         }
@@ -84,7 +103,6 @@ const importPhotoFromPC = (props: any) => {
 }
 
 function drawRectangle(object: any, ctx: CanvasRenderingContext2D | undefined | null) {
-  console.log('[DRAWING RECT]', object)
   ctx?.fillRect(object.topLeft.x, object.topLeft.y, object.size.width, object.size.height);
 }
 
@@ -107,13 +125,20 @@ function drawTriangle(object: any, ctx: CanvasRenderingContext2D | undefined | n
   ctx?.fill();
 }
 
-function drawImage(object: any, ctx: CanvasRenderingContext2D | undefined | null) {
-  console.log('[DRAWIMAGE]', object)
-}
+// function drawImage(object: any, ctx: CanvasRenderingContext2D | undefined | null) {
+//   const image = new Image();
+//   image.src = object.src;
+//   image.onload = () => {
+//     ctx?.drawImage(image, object.topLeft.x, object.topLeft.y, object.size.width, object.size.height)
+//     const imgData = ctx?.getImageData(0, 0, canv.width, canv.height);
+//     props.saveImageData(imgData);
+//   }
+// }
 
 const mapStateToProps = (state: any) => {
   return {
-    selectedObj: state.editor.selectedObject
+    selectedObj: state.editor.selectedObject,
+    canvas: state.editor.canvas
   }
 }
 

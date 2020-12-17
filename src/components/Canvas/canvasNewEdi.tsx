@@ -71,12 +71,15 @@ const Canvas = (props: any) => {
         height: shapeBorder.current.height
       },
       type: type,
-      fillColor: props.fillColor
+      fillColor: props.fillColor,
+      src: props.selectedObj && props.selectedObj.type === 'image' ? props.selectedObj.src : null,
+      text: props.currentTool === 'text' ? props.text : null
     }
   }
 
   const isInFigure = (loc: Point) => {
     if (props.selectedObj && loc && canvasEl.current) {
+      if (props.selectedObj.type === 'area') return false;
       if (loc.x < props.selectedObj.topLeft.x
         || loc.x > props.selectedObj.topLeft.x + props.selectedObj.size.width
         || loc.x > props.selectedObj.topLeft.x + props.selectedObj.size.width
@@ -201,12 +204,12 @@ const Canvas = (props: any) => {
         ctx?.beginPath();
         ctx?.fillText(props.text, props.selectedObj.topLeft.x , props.selectedObj.topLeft.y + (+props.fontSize));
         break;
-      case 'area':
-        if (ctx) {
-          ctx.strokeStyle = 'violet';
-        }
-        ctx?.strokeRect(props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, props.selectedObj.size.width, props.selectedObj.size.height);
-        break;
+      // case 'area':
+      //   if (ctx) {
+      //     ctx.strokeStyle = 'violet';
+      //   }
+      //   ctx?.strokeRect(props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, props.selectedObj.size.width, props.selectedObj.size.height);
+      //   break;
       case 'image':
         if (img.current && img.current.src === props.selectedObj.src || img.current && !props.selectedObj.src) {
           ctx?.drawImage(img.current, props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, img.current.width, img.current.height)
@@ -231,7 +234,6 @@ const Canvas = (props: any) => {
   }
 
   useEffect(() => {
-    console.log('[PROPS]', props)
     const ctx = canvasEl.current?.getContext('2d');
     ctx?.clearRect(0, 0, props.width, props.height);
     ctx?.putImageData(props.data, 0, 0);
@@ -444,7 +446,7 @@ const Canvas = (props: any) => {
             drawSelectedObject();
           }
           if (movedelta.current !== 0) {
-            if (img.current && inFigure) {
+            if (img.current && (inFigure || resizing)) {
               const object = {
                 topLeft: {
                   x: shapeBorder.current.left,
@@ -466,14 +468,14 @@ const Canvas = (props: any) => {
                 ctx?.drawImage(img.current, props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, img.current.width, img.current.height);
                 img.current = null;
               }
-              if (props.selectedObj) {
+              else if (props.selectedObj) {
                 drawSelectedObject();
               }
               const imgData = ctx?.getImageData(0, 0, props.data.width, props.data.height);
               props.putInHistory(props.data);
               props.saveImageData(imgData);
             }
-            if (resizing && props.selectedObj && props.selectedObj.type === 'image' && img.current && loc) {
+            if (props.selectedObj && props.selectedObj.type === 'image' && resizing && img.current && loc) {
               console.log('[IMAGE UP]', shapeBorder.current)
               img.current.width = shapeBorder.current.width;
               img.current.height = shapeBorder.current.height;
