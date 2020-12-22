@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import { Tool } from '../../modelsTS/Editor'
 import { ImageUI } from '../../modelsTS/ImagUI'
 import { Point } from '../../modelsTS/Point'
+import {drawTriangle, drawRectangle, drawEllipse} from "../../functionsTS/DrawElements"
 import { Ellipse, Primitive, Rectangle, Triangle } from '../../modelsTS/Primitives'
 import * as actionTypes from "../../store/actions"
 
@@ -500,37 +501,6 @@ const Canvas = (props: any) => {
         ></canvas>
     </div>
   )
-}
-
-function drawRectangle(object: any, ctx: CanvasRenderingContext2D | undefined | null) {
-  ctx?.fillRect(object.topLeft.x, object.topLeft.y, object.size.width, object.size.height);
-}
-
-function drawEllipse(object: any, ctx: CanvasRenderingContext2D | undefined | null) {
-  let radiusX = object.size.width / 2;
-  let radiusY = object.size.height / 2;
-  let centerX = object.topLeft.x + radiusX;
-  let centerY = object.topLeft.y + radiusY;
-  ctx?.beginPath();
-  ctx?.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
-  ctx?.fill();
-}
-
-function drawTriangle(object: any, ctx: CanvasRenderingContext2D | undefined | null) {
-  ctx?.beginPath();
-  ctx?.moveTo(object.topLeft.x, object.topLeft.y + object.size.height);
-  ctx?.lineTo(object.topLeft.x + object.size.width / 2, object.topLeft.y);
-  ctx?.lineTo(object.topLeft.x + object.size.width, object.topLeft.y + object.size.height);
-  ctx?.lineTo(object.topLeft.x, object.topLeft.y + object.size.height);
-  ctx?.fill();
-}
-
-function drawImage(object: any, ctx: CanvasRenderingContext2D | undefined | null) {
-  console.log('[DRAWIMAGE]', object)
-}
-
-function drawText(object: any, ctx: CanvasRenderingContext2D | undefined | null) {
-
 }
 
 const mapStateToProps = (state: any) => {

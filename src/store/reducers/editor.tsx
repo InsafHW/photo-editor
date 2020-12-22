@@ -9,7 +9,6 @@ const initialState: Editor = {
   selectedObject: null,
   filterColor: Filter.red,
   currentTool: Tool.rectangle,
-  currentId: 1
 }
 
 const reducer = (state = initialState, action: any) => {
@@ -24,7 +23,6 @@ const reducer = (state = initialState, action: any) => {
       return {
         ...state,
         currentTool: action.tool,
-        currentId: state.currentId + 1
       }
     case actionTypes.SAVE_IMAGE_DATA:
       return {
@@ -35,6 +33,8 @@ const reducer = (state = initialState, action: any) => {
       const canvas: HTMLCanvasElement | null = document.querySelector('#canvas');
       if (canvas && state.selectedObject) {
         const ctx = canvas.getContext('2d')
+        ctx?.clearRect(0, 0, state.canvas.width, state.canvas.height);
+        ctx?.putImageData(state.canvas, 0, 0);
         ctx?.clearRect(state.selectedObject.topLeft.x, state.selectedObject.topLeft.y, state.selectedObject.size.width, state.selectedObject.size.height)
         const newData = ctx?.getImageData(0, 0, canvas.width, canvas.height);
         return {
@@ -44,45 +44,53 @@ const reducer = (state = initialState, action: any) => {
       }
       return state;
     case actionTypes.APPLY_FILTER:
-      console.log(action)
-      const newImageData: ImageData = {...state.canvas};
+      const canvas1: HTMLCanvasElement | null = document.querySelector("#canvas");
+      const ctx = canvas1?.getContext('2d');
+      if (!ctx) return state;
+      const imgData: ImageData = ctx.createImageData(state.canvas.width, state.canvas.height);
+      imgData.data.set(state.canvas.data);
+      console.log('STATE', state)
+      console.log(imgData)
       switch (action.color) {
-        case Filter.blue:
-          for (let i = 0; i < newImageData.data.length; i += 4) {
-            newImageData.data[i] = 0; // red
-            newImageData.data[i + 2] = 0; //green
-          }
-          break
-        case Filter.green:
-          for (let i = 0; i < newImageData.data.length; i += 4) {
-            newImageData.data[i] = 0; // red
-            newImageData.data[i + 1] = 0; // blue
-          }
-          break;
         case Filter.grey:
-          for (let i = 0; i < newImageData.data.length; i += 4) {
-            let ttl = newImageData.data[i] + newImageData.data[i + 1] + newImageData.data[i + 2];
-            let avg = Math.floor(ttl / 3);
-            newImageData.data[i] = avg; //red
-            newImageData.data[i + 1] = avg; //blue
-            newImageData.data[i + 2] = avg; //gren
+          console.log('GREY')
+          for (let i = 0; i < imgData.height; i++) {
+            for (let j = 0; j < imgData.width; j++) {
+              let dataIndex = (i * imgData.width + j) * 4;
+              let ave = (imgData.data[dataIndex] + imgData.data[dataIndex + 1] + imgData.data[dataIndex + 2]) / 3;
+              for (var k = 0; k < 3; k++) {
+                imgData.data[dataIndex + k] = ave;
+              }
+            }
           }
+        break;
+        case Filter.blue:
+          addFilter(imgData, [0, 0, 1, 1]);
           break;
-        case Filter.red:
-          for (let i = 0; i < newImageData.data.length; i += 4) {
-            newImageData.data[i + 1] = 0; //blue
-            newImageData.data[i + 2] = 0; //green
-          }
-          break;
-        default:
-          break;
+        case 'green':
+          addFilter(imgData, [0, 1, 0, 1]);
+        break;
+        case 'red':
+          addFilter(imgData, [1, 0, 0, 1]);
+        break;
       }
       return {
         ...state,
-        canvas: newImageData
+        canvas: imgData
       }
     default:
       return state;
+  }
+}
+
+function addFilter(imgData: ImageData, filterArray: Array<number>) {
+  for (let i = 0; i < imgData.height; i++) {
+    for (let j = 0; j < imgData.width; j++) {
+      let dataIndex = (i * imgData.width + j) * 4;
+      for (let k = 0; k < 4; k++) {
+        imgData.data[dataIndex + k] *= filterArray[k];
+      }
+    }
   }
 }
 

@@ -17,7 +17,6 @@ type Editor = {
   selectedObject: Primitive | TextUI | ImageUI | null,
   filterColor: Filter | null,
   currentTool: Tool,
-  currentId: number
 }
 
 export type {

@@ -2,9 +2,8 @@ import React, {useRef} from 'react'
 import * as actionTypes from "../../../store/actions"
 import { connect } from 'react-redux'
 import classes from './ImportPhotoFromPC.module.css'
-import changeSelectedObject from "../../../functionsTS/ChangeSelectedObject"
 import {ImageUI} from "../../../modelsTS/ImagUI"
-import { read, stat } from 'fs'
+import {drawEllipse, drawRectangle, drawTriangle} from "../../../functionsTS/DrawElements"
 
 const importPhotoFromPC = (props: any) => {
   const importHandler = (e: any) => {
@@ -100,29 +99,6 @@ const importPhotoFromPC = (props: any) => {
       </label>
     </div>
   )
-}
-
-function drawRectangle(object: any, ctx: CanvasRenderingContext2D | undefined | null) {
-  ctx?.fillRect(object.topLeft.x, object.topLeft.y, object.size.width, object.size.height);
-}
-
-function drawEllipse(object: any, ctx: CanvasRenderingContext2D | undefined | null) {
-  let radiusX = object.size.width / 2;
-  let radiusY = object.size.height / 2;
-  let centerX = object.topLeft.x + radiusX;
-  let centerY = object.topLeft.y + radiusY;
-  ctx?.beginPath();
-  ctx?.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
-  ctx?.fill();
-}
-
-function drawTriangle(object: any, ctx: CanvasRenderingContext2D | undefined | null) {
-  ctx?.beginPath();
-  ctx?.moveTo(object.topLeft.x, object.topLeft.y + object.size.height);
-  ctx?.lineTo(object.topLeft.x + object.size.width / 2, object.topLeft.y);
-  ctx?.lineTo(object.topLeft.x + object.size.width, object.topLeft.y + object.size.height);
-  ctx?.lineTo(object.topLeft.x, object.topLeft.y + object.size.height);
-  ctx?.fill();
 }
 
 // function drawImage(object: any, ctx: CanvasRenderingContext2D | undefined | null) {
