@@ -1,8 +1,29 @@
-.Toolbar {
-  margin-top: 90px;
-  /* min-height: 90vh; */
-  width: 5%;
+.Wrapper {
+  display: flex;
+  flex-direction: column;
   background-color: #282c34;
+  width: 5%;
+}
+
+.ChangeHolst {
+  display: flex;
+  flex-direction: column;
+  background-color: #282c34;
+  align-items: center;
+  margin-top: 25px;
+}
+
+.ImportExportBar {
+  border-top: 3px solid rebeccapurple;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: 25px;
+}
+
+.Toolbar {
+  /* margin-top: 90px; */
   display: flex;
   flex-direction: column;
   border-top: 3px solid rebeccapurple;

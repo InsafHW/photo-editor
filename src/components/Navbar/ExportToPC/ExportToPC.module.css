@@ -1,17 +1,8 @@
-.Element {
+.Icon {
   cursor: pointer;
-  border: none;
-  background-color: transparent;
-  outline: none;
-  padding: 10px 15px;
-  border-radius: 8px;
-  color: #7fffd4;
-  font-size: 20px;
-  height: 90px;
-  border: 2px dashed grey;
+  transition: all 0.2s linear;
 }
 
-.Element:hover {
-  color: #fff;
-  border: 2px solid #7fffd4;
+.Icon:hover {
+  transform: scale(1.2);
 }

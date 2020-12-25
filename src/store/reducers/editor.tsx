@@ -1,4 +1,3 @@
-import { stat } from 'fs';
 import { Editor, Tool } from '../../modelsTS/Editor';
 import { Filter } from '../../modelsTS/Filter';
 
@@ -44,53 +43,48 @@ const reducer = (state = initialState, action: any) => {
       }
       return state;
     case actionTypes.APPLY_FILTER:
-      const canvas1: HTMLCanvasElement | null = document.querySelector("#canvas");
-      const ctx = canvas1?.getContext('2d');
-      if (!ctx) return state;
-      const imgData: ImageData = ctx.createImageData(state.canvas.width, state.canvas.height);
-      imgData.data.set(state.canvas.data);
-      console.log('STATE', state)
+      const imgData: ImageData = new ImageData(state.canvas.width, state.canvas.height);
+      imgData.data.set(state.canvas.data)
+      // imgData['width'] = state.canvas.width;
+      // console.log(state.canvas)
       console.log(imgData)
+      // console.log(state.filterColor)
       switch (action.color) {
-        case Filter.grey:
-          console.log('GREY')
-          for (let i = 0; i < imgData.height; i++) {
-            for (let j = 0; j < imgData.width; j++) {
-              let dataIndex = (i * imgData.width + j) * 4;
-              let ave = (imgData.data[dataIndex] + imgData.data[dataIndex + 1] + imgData.data[dataIndex + 2]) / 3;
-              for (var k = 0; k < 3; k++) {
-                imgData.data[dataIndex + k] = ave;
-              }
-            }
+        case Filter.blue:
+          for (let i = 0 ; i < imgData.data.length; i+=4) {
+            imgData.data[i] = 0;
+            imgData.data[i + 1] = 0;
+          }
+          break;
+        case Filter.green:
+          for (let i = 0 ; i < imgData.data.length; i+=4) {
+            imgData.data[i] = 0;
+            imgData.data[i + 2] = 0;
           }
         break;
-        case Filter.blue:
-          addFilter(imgData, [0, 0, 1, 1]);
-          break;
-        case 'green':
-          addFilter(imgData, [0, 1, 0, 1]);
-        break;
-        case 'red':
-          addFilter(imgData, [1, 0, 0, 1]);
+        case Filter.red:
+          for (let i = 0 ; i < imgData.data.length; i+=4) {
+            imgData.data[i + 1] = 0;
+            imgData.data[i + 2] = 0;
+          }
         break;
       }
+      console.log(imgData)
       return {
         ...state,
-        canvas: imgData
+        canvas: imgData,
+        filterColor: action.color
+      }
+    case actionTypes.CREATE_NEW_HOLST:
+      const newCanvas = new ImageData(action.size.width, action.size.height);
+      newCanvas.data.fill(255);
+      return {
+        ...state,
+        canvas: newCanvas,
+        selectedObject: null
       }
     default:
       return state;
-  }
-}
-
-function addFilter(imgData: ImageData, filterArray: Array<number>) {
-  for (let i = 0; i < imgData.height; i++) {
-    for (let j = 0; j < imgData.width; j++) {
-      let dataIndex = (i * imgData.width + j) * 4;
-      for (let k = 0; k < 4; k++) {
-        imgData.data[dataIndex + k] *= filterArray[k];
-      }
-    }
   }
 }
 

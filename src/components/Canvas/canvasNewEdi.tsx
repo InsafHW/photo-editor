@@ -194,23 +194,16 @@ const Canvas = (props: any) => {
         drawTriangle(object, ctx);
         break;
       case 'text':
+        console.log('TEXT')
         if (ctx) {
           ctx.font = `normal ${props.fontSize}px ${props.fontFamily}`;
+          ctx.fillStyle = props.fillColor;
         }
-        let width = props.selectedObj.size.width;
-        if (props.fontSize * (props.text.length - 2.5) > width) {
-          width = props.fontSize * (props.text.length - 2.5)
-          console.log('[NE LEZET]')
-        }
-        ctx?.beginPath();
+        ctx?.strokeRect(shapeBorder.current.left - props.fontSize, shapeBorder.current.top, props.fontSize * (props.text.length) / 1.75, props.fontSize);
+        // ctx?.fillText(props.text, loc.x - props.fontSize, loc.y + props.fontSize / 1.3)
+        // ctx?.beginPath();
         ctx?.fillText(props.text, props.selectedObj.topLeft.x , props.selectedObj.topLeft.y + (+props.fontSize));
         break;
-      // case 'area':
-      //   if (ctx) {
-      //     ctx.strokeStyle = 'violet';
-      //   }
-      //   ctx?.strokeRect(props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, props.selectedObj.size.width, props.selectedObj.size.height);
-      //   break;
       case 'image':
         if (img.current && img.current.src === props.selectedObj.src || img.current && !props.selectedObj.src) {
           ctx?.drawImage(img.current, props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, img.current.width, img.current.height)
@@ -235,6 +228,7 @@ const Canvas = (props: any) => {
   }
 
   useEffect(() => {
+    console.log('[changing]', props.data)
     const ctx = canvasEl.current?.getContext('2d');
     ctx?.clearRect(0, 0, props.width, props.height);
     ctx?.putImageData(props.data, 0, 0);
@@ -255,11 +249,14 @@ const Canvas = (props: any) => {
       ctx?.strokeRect(props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, props.selectedObj.size.width, props.selectedObj.size.height);
       ctx?.closePath();
     }
-  }, [props.selectedObj, props.text, props.fontSize, props.fillColor]) //LAST CHANGES [filterClor]
+  }, [props.selectedObj, props.text, props.fontSize, props.fillColor])
 
   return (
     <div className={classes.Canvas}>
-      <canvas id="canvas" width={props.width} height={props.height} ref={canvasEl}
+      <canvas id="canvas" 
+        width={props.width} 
+        height={props.height} 
+        ref={canvasEl}
         onMouseDown={(e) => {
           const loc = getMousePosition(e.clientX, e.clientY);
           if (loc) {
@@ -282,13 +279,21 @@ const Canvas = (props: any) => {
               }
               setDrawing(true);
             }
+            // if (props.currentTool === 'text') {
+            //   const ctx = canvasEl.current?.getContext('2d');
+            //   if (!ctx) return;
+            //   ctx.font = `normal ${props.fontSize}px Open-sans, sans-serif`;
+            //   ctx.fillStyle = props.fillColor;
+            //   ctx?.strokeRect(loc.x - props.fontSize, loc.y, props.fontSize * (props.text.length) / 1.75, props.fontSize);
+            //   ctx?.fillText(props.text, loc.x - props.fontSize, loc.y + props.fontSize / 1.3)
+            // }
             setDownpos(loc);
           }
         }}
         onMouseMove={(e) => {
           const loc = getMousePosition(e.clientX, e.clientY);
           const ctx = canvasEl.current?.getContext('2d');
-          if (drawing && loc && ctx) {
+          if (drawing && loc && ctx && props.currentTool !== 'text') {
             console.log('[DRAWING]', props.currentTool)
             movedelta.current = Math.abs(e.movementX) + Math.abs(e.movementY);
             updateShapeBorder(loc);
@@ -443,6 +448,21 @@ const Canvas = (props: any) => {
         onMouseUp={(e) => {
           const loc = getMousePosition(e.pageX, e.pageY);
           const ctx = canvasEl.current?.getContext('2d');
+          if (props.currentTool === 'text' && movedelta.current === 0) {
+            const object = {
+              topLeft: {
+                x: downpos.x,
+                y: downpos.y
+              },
+              size: {
+                width: props.fontSize * (props.text.length) / 1.75,
+                height: props.fontSize
+              },
+              text: props.text,
+              fillColor: props.fillColor
+            }
+            props.changeSelectedObject(object)
+          }
           if (movedelta.current === 0 && drawing && props.selectedObj) {
             drawSelectedObject();
           }
@@ -465,7 +485,7 @@ const Canvas = (props: any) => {
             if (drawing) {
               ctx?.clearRect(0, 0, props.width, props.height);
               ctx?.putImageData(props.data, 0, 0);
-              if (img.current) {
+              if (img.current && props.selectedObj) {
                 ctx?.drawImage(img.current, props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, img.current.width, img.current.height);
                 img.current = null;
               }

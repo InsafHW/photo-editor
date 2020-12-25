@@ -8,6 +8,12 @@ import { Tool } from '../../modelsTS/Editor'
 import * as actionTypes from "../../store/actions"
 import classes from "./Toolbar.module.css"
 import { Filter } from '../../modelsTS/Filter';
+import ImportFromPC from "../Navbar/ImportPhotoFromPC/ImportPhotoFromPC"
+import ImportPhotoFromPC from '../Navbar/ImportPhotoFromPC/ImportPhotoFromPC';
+import ImportFromWebcamera from "../Navbar/ImportFromWebcamera/ImporFromWebcamera"
+import ExportToPC from "../Navbar/ExportToPC/ExportToPC"
+import CreateNewHolst from "../Navbar/CreateNewHolst/CreateNewHolst"
+import ResizeHolst from "../Navbar/ResizeHolst/ResizeHolst"
 
 const Toolbar = (props: any) => {
   const [showFilters, setShowFilters] = useState(false);
@@ -33,7 +39,16 @@ const Toolbar = (props: any) => {
   }
 
   return (
-    <React.Fragment>
+    <div className={classes.Wrapper}>
+      <div className={classes.ChangeHolst}>
+        <CreateNewHolst />
+        <ResizeHolst />
+      </div>
+      <div className={classes.ImportExportBar}>
+        <ImportPhotoFromPC style={{marginTop: '20px'}}/>
+        <ImportFromWebcamera />
+        <ExportToPC />
+      </div>
       <div className={classes.Toolbar}>
         <IoTriangleOutline 
             className={[classes.tool, trCls, classes.triangle].join(' ')} 
@@ -91,7 +106,7 @@ const Toolbar = (props: any) => {
         <input type="text" placeholder="Введите текст..." value={props.text} onChange={(e) => props.changeText(e.target.value)}/>
       </div>
     ) : null}
-    </React.Fragment>
+    </div>
   )
 }
 

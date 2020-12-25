@@ -29,15 +29,10 @@ function App(props: any) {
   })
 
   return (
-    <React.Fragment>
-      <div className={classes.App}>
-        <Navbar/>
-        <NewCanvas/>
-        {/* <Cnvs /> */}
-        <Toolbar/>
-      </div>
-    </React.Fragment>
-    
+    <div className={classes.App}>
+      <NewCanvas/>
+      <Toolbar/>
+    </div>
   )
 }
 

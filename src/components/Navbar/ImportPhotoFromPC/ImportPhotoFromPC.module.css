@@ -4,29 +4,29 @@
   pointer-events: none;
   user-select: none;
   background-color: #fff;
+  width: 0;
 }
-.example .label {
-  width: 120px;
-  border: 2px dashed grey;
-  border-radius: 5px;
-  display: block;
-  transition: border 300ms ease;
+
+.example {
   cursor: pointer;
-  text-align: center;
+  position: relative;
+  transition: 0.2s all ease;
 }
-.example .label i {
-  display: block;
-  font-size: 42px;
+
+/* .example:hover::before {
+  content: 'Импортировать с ПК';
+  position: absolute;
+  right: calc(5vh);
+  bottom: 20px;
+  color: #ff2400;
+  width: 100%;
+} */
+
+.Icon {
+  cursor: pointer;
+  transition: all 0.2s linear;
 }
-.example .label i,
-.example .label .title {
-  color: #7fffd4;
-  transition: 200ms color;
-}
-.example .label:hover {
-  border: 2px solid #7fffd4;
-}
-.example .label:hover i,
-.example .label:hover .title {
-  color: #fff;
+
+.Icon:hover {
+  transform: scale(1.2);
 }

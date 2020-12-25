@@ -1,5 +1,6 @@
 import React, {useRef} from 'react'
 import * as actionTypes from "../../../store/actions"
+import { IoAttachOutline } from "react-icons/io5"
 import { connect } from 'react-redux'
 import classes from './ImportPhotoFromPC.module.css'
 import {ImageUI} from "../../../modelsTS/ImagUI"
@@ -93,8 +94,7 @@ const importPhotoFromPC = (props: any) => {
   return (
     <div className={classes.example}>
       <label className={classes.label}>
-        <i className="material-icons">attach_file</i>
-        <span className={classes.title}>Добавить файл</span>
+        <IoAttachOutline color="white" className={classes.Icon} size="2.7em"/>
         <input type="file" onChange={importHandler}/>
       </label>
     </div>

@@ -20,6 +20,7 @@ const reducer = (state = initialState, action: any) => {
         fontSize: action.value
       }
     case actionTypes.CHANGE_TEXT:
+      console.log(action)
       return {
         ...state,
         text: action.value
