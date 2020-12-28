@@ -82,11 +82,11 @@ function drawText(textObj: TextUI, ctx: CanvasRenderingContext2D | null): void {
 
 const mapStateToProps = (state: any) => {
   return {
-    selectedObj: state.editor.selectedObject,
-    data: state.editor.canvas,
-    text: state.view.text,
-    fontSize: state.view.fontSize,
-    fillColor: state.view.fillColor
+    selectedObj: state.present.editor.selectedObject,
+    data: state.present.editor.canvas,
+    text: state.present.view.text,
+    fontSize: state.present.view.fontSize,
+    fillColor: state.present.view.fillColor
   }
 }
 

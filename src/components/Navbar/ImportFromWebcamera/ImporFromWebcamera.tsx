@@ -75,7 +75,6 @@ const ImportFromWebcamera = (props: any) => {
           ctx.fillStyle = props.selectedObj.fillColor;
         }
         if (props.selectedObj.type === 'image') {
-          console.log('[OLD IMAGE]', props.selectedObj)
           const image = new Image();
           image.src = props.selectedObj.src;
           image.onload = () => {
@@ -150,8 +149,8 @@ const ImportFromWebcamera = (props: any) => {
 
 const mapStateToProps = (state: any) => {
   return {
-    selectedObj: state.editor.selectedObject,
-    canvas: state.editor.canvas
+    selectedObj: state.present.editor.selectedObject,
+    canvas: state.present.editor.canvas
   }
 }
 

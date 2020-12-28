@@ -493,7 +493,6 @@ const Canvas = (props: any) => {
                 drawSelectedObject();
               }
               const imgData = ctx?.getImageData(0, 0, props.data.width, props.data.height);
-              props.putInHistory(props.data);
               props.saveImageData(imgData);
             }
             if (props.selectedObj && props.selectedObj.type === 'image' && resizing && img.current && loc) {
@@ -525,14 +524,14 @@ const Canvas = (props: any) => {
 
 const mapStateToProps = (state: any) => {
   return {
-    selectedObj: state.editor.selectedObject,
-    data: state.editor.canvas,
-    currentTool: state.editor.currentTool,
-    width: state.editor.canvas.width,
-    height: state.editor.canvas.height,
-    fillColor: state.view.fillColor,
-    text: state.view.text,
-    fontSize: state.view.fontSize
+    selectedObj: state.present.editor.selectedObject,
+    data: state.present.editor.canvas,
+    currentTool: state.present.editor.currentTool,
+    width: state.present.editor.canvas.width,
+    height: state.present.editor.canvas.height,
+    fillColor: state.present.view.fillColor,
+    text: state.present.view.text,
+    fontSize: state.present.view.fontSize
   }
 }
 

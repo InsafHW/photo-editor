@@ -112,10 +112,10 @@ const Toolbar = (props: any) => {
 
 const mapStateToProps = (state: any) => {
   return {
-    tool: state.editor.currentTool,
-    fillColor: state.view.fillColor,
-    text: state.view.text,
-    fontSize: state.view.fontSize
+    tool: state.present.editor.currentTool,
+    fillColor: state.present.view.fillColor,
+    text: state.present.view.text,
+    fontSize: state.present.view.fontSize
   }
 }
 

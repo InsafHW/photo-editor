@@ -113,8 +113,8 @@ const importPhotoFromPC = (props: any) => {
 
 const mapStateToProps = (state: any) => {
   return {
-    selectedObj: state.editor.selectedObject,
-    canvas: state.editor.canvas
+    selectedObj: state.present.editor.selectedObject,
+    canvas: state.present.editor.canvas
   }
 }
 
