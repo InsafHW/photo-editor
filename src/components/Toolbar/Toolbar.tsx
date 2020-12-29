@@ -1,14 +1,12 @@
-import { stat } from 'fs';
 import React, {useState} from 'react';
 import { IoEllipseOutline, IoTriangleOutline, IoSquareOutline, IoColorFilterOutline, IoCutOutline } from "react-icons/io5"
 import {SketchPicker} from "react-color"
 import { BiText, BiSelection } from "react-icons/bi"
 import { connect } from "react-redux";
-import { Tool } from '../../modelsTS/Editor'
+import { Tool } from '../../modelsTS/Tool'
 import * as actionTypes from "../../store/actions"
 import classes from "./Toolbar.module.css"
 import { Filter } from '../../modelsTS/Filter';
-import ImportFromPC from "../Navbar/ImportPhotoFromPC/ImportPhotoFromPC"
 import ImportPhotoFromPC from '../Navbar/ImportPhotoFromPC/ImportPhotoFromPC';
 import ImportFromWebcamera from "../Navbar/ImportFromWebcamera/ImporFromWebcamera"
 import ExportToPC from "../Navbar/ExportToPC/ExportToPC"
@@ -95,7 +93,9 @@ const Toolbar = (props: any) => {
     {
       trCls || rectCls || crcCls || textCls ? (
         <div className={classes.FillColorMenu}>
-          <SketchPicker color={props.fillColor} onChange={(color) => props.changeFillColor(color.hex)}/>
+          <SketchPicker color={props.fillColor} onChange={(color) => {
+            console.log(color.hex)
+            props.changeFillColor(color.hex)}}/>
         </div>
       ) : null
     }

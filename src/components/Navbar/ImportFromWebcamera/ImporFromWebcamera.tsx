@@ -1,11 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef } from 'react'
 import { connect } from "react-redux"
 import { BiWebcam } from "react-icons/bi"
-import classes from "./ImportFromWebcamera.module.css"
+
 import Backdrop from "../../Backdrop/Backdrop"
+
+import { drawPrimitive } from "../../../functionsTS/canvasHelper"
+
+import classes from "./ImportFromWebcamera.module.css"
 import * as actionTypes from "../../../store/actions"
-import { drawEllipse, drawRectangle, drawTriangle } from "../../../functionsTS/DrawElements"
-import canvas from '../../Canvas/canvas'
 import { ImageUI } from '../../../modelsTS/ImagUI'
 
 const ImportFromWebcamera = (props: any) => {
@@ -83,19 +85,7 @@ const ImportFromWebcamera = (props: any) => {
             props.saveImageData(imgData);
           }
         } else {
-          switch (props.selectedObj.type) {
-            case 'rectangle':
-              drawRectangle(props.selectedObj, ctx);
-              break;
-            case 'triangle':
-              drawTriangle(props.selectedObj, ctx);
-              break;
-            case 'ellipse':
-              drawEllipse(props.selectedObj, ctx);
-              break;
-            default:
-              break;
-          }
+          drawPrimitive(ctx, props.selectedObj.type, props.selectedObj);
         }
       }
       const imgData = ctx?.getImageData(0, 0, canv.width, canv.height);

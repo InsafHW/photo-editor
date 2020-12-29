@@ -1,10 +1,12 @@
-import React, {useRef} from 'react'
-import * as actionTypes from "../../../store/actions"
-import { IoAttachOutline } from "react-icons/io5"
+import React from 'react'
 import { connect } from 'react-redux'
+import { IoAttachOutline } from "react-icons/io5"
+
+import {drawPrimitive, redraw} from "../../../functionsTS/canvasHelper"
+
+import * as actionTypes from "../../../store/actions"
 import classes from './ImportPhotoFromPC.module.css'
 import {ImageUI} from "../../../modelsTS/ImagUI"
-import {drawEllipse, drawRectangle, drawTriangle} from "../../../functionsTS/DrawElements"
 
 const importPhotoFromPC = (props: any) => {
   const importHandler = (e: any) => {
@@ -22,9 +24,7 @@ const importPhotoFromPC = (props: any) => {
         image.src = url;
         const canv = document.querySelector('#canvas') as HTMLCanvasElement;
         const ctx = canv.getContext('2d');
-        ctx?.clearRect(0, 0, canv.width, canv.height);
-        ctx?.putImageData(props.canvas, 0, 0);
-        // ctx?.fillText('PRIVE', 10, 200)
+        redraw(ctx, props.canvas, canv.width, canv.height);
         if (props.selectedObj) {
           if (ctx) {
             ctx.fillStyle = props.selectedObj.fillColor;
@@ -43,29 +43,7 @@ const importPhotoFromPC = (props: any) => {
             // ctx?.fillText('PRIVE', 10, 200)
             ctx?.fillText(props.selectedObj.text, props.selectedObj.topLeft.x, props.selectedObj.topLeft.y)
           } else {
-            const object = {
-              topLeft: {
-                x: props.selectedObj.topLeft.x,
-                y: props.selectedObj.topLeft.y
-              },
-              size: {
-                width: props.selectedObj.size.width,
-                height: props.selectedObj.size.height
-              }
-            }
-            switch (props.selectedObj.type) {
-              case 'rectangle':
-                drawRectangle(object, ctx);
-                break;
-              case 'triangle':
-                drawTriangle(object, ctx);
-                break;
-              case 'ellipse':
-                drawEllipse(object, ctx);
-                break;
-              default:
-                break;
-            }   
+            drawPrimitive(ctx, props.selectedObj.type, props.selectedObj);
           }
           const imgData = ctx?.getImageData(0, 0, canv.width, canv.height);
           props.saveImageData(imgData);
@@ -100,16 +78,6 @@ const importPhotoFromPC = (props: any) => {
     </div>
   )
 }
-
-// function drawImage(object: any, ctx: CanvasRenderingContext2D | undefined | null) {
-//   const image = new Image();
-//   image.src = object.src;
-//   image.onload = () => {
-//     ctx?.drawImage(image, object.topLeft.x, object.topLeft.y, object.size.width, object.size.height)
-//     const imgData = ctx?.getImageData(0, 0, canv.width, canv.height);
-//     props.saveImageData(imgData);
-//   }
-// }
 
 const mapStateToProps = (state: any) => {
   return {

@@ -4,7 +4,6 @@ const initialState = {
   fillColor: '#000',
   text: '',
   fontSize: 24,
-  fontFamily: 'Arial'
 }
 
 const reducer = (state = initialState, action: any) => {

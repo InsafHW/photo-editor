@@ -1,10 +1,9 @@
 import React, {useEffect} from 'react';
 import { connect } from "react-redux"
 import * as actionTypes from "./store/actions"
-// import Holst from "./components/Holst/Holst"
 import Toolbar from "./components/Toolbar/Toolbar"
 import classes from "./App.module.css"
-import NewCanvas from "./components/Canvas/canvasNewEdi"
+import NewCanvas from "./components/Canvas/canvas"
 import { ActionCreators } from 'redux-undo';
 import { store } from "./index"
 

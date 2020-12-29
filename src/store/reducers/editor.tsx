@@ -1,5 +1,6 @@
-import { Editor, Tool } from '../../modelsTS/Editor';
+import { Editor } from '../../modelsTS/Editor';
 import { Filter } from '../../modelsTS/Filter';
+import { Tool } from '../../modelsTS/Tool'
 
 import * as actionTypes from "../actions"
 
@@ -13,7 +14,6 @@ const initialState: Editor = {
 const reducer = (state = initialState, action: any) => {
   switch (action.type) {
     case actionTypes.CHANGE_SELECTED_OBJECT:
-      console.log(action.newObject)
       return {
         ...state,
         selectedObject: { ...action.newObject }
@@ -29,7 +29,7 @@ const reducer = (state = initialState, action: any) => {
         canvas: action.data
       }
     case actionTypes.DELETE_SELECTED_AREA:
-      const canvas: HTMLCanvasElement | null = document.querySelector('#canvas');
+      const canvas = document.querySelector('#canvas') as HTMLCanvasElement;
       if (canvas && state.selectedObject) {
         const ctx = canvas.getContext('2d')
         ctx?.clearRect(0, 0, state.canvas.width, state.canvas.height);
@@ -45,10 +45,7 @@ const reducer = (state = initialState, action: any) => {
     case actionTypes.APPLY_FILTER:
       const imgData: ImageData = new ImageData(state.canvas.width, state.canvas.height);
       imgData.data.set(state.canvas.data)
-      // imgData['width'] = state.canvas.width;
-      // console.log(state.canvas)
       console.log(imgData)
-      // console.log(state.filterColor)
       switch (action.color) {
         case Filter.blue:
           for (let i = 0 ; i < imgData.data.length; i+=4) {
