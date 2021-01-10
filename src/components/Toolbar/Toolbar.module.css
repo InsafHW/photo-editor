@@ -5,16 +5,7 @@
   width: 5%;
 }
 
-.ChangeHolst {
-  display: flex;
-  flex-direction: column;
-  background-color: #282c34;
-  align-items: center;
-  margin-top: 25px;
-}
-
-.ImportExportBar {
-  border-top: 3px solid rebeccapurple;
+.TopBar {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -23,7 +14,6 @@
 }
 
 .Toolbar {
-  /* margin-top: 90px; */
   display: flex;
   flex-direction: column;
   border-top: 3px solid rebeccapurple;
@@ -106,13 +96,15 @@
   font-size: 15px;
 }
 
-.textMenu input[type='text'] {
-  border-radius: 4px;
-  height: 40px;
-  font-size: 20px;
-  padding: 0px 10px;
-  outline: none;
-  border: none;
+.textMenu textarea {
+  overflow: auto;
+  resize: none;
+  width: 300px;
+  height: 50px;
+  background: #f6f6f6;
+  border: 1px solid #cecece;
+  border-radius: 8px 0 0 0;
+  padding: 8px 0 8px 10px;
 }
 
 .textMenu input[type='number'] {

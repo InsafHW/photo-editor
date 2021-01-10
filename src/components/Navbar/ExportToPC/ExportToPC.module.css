@@ -1,8 +1,0 @@
-.Icon {
-  cursor: pointer;
-  transition: all 0.2s linear;
-}
-
-.Icon:hover {
-  transform: scale(1.2);
-}

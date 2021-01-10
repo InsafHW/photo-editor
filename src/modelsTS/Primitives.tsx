@@ -22,6 +22,8 @@ type Ellipse = {
   fillColor: string
 }
 
+type Primitive = Rectangle | Triangle | Ellipse;
+
 type Area = {
   topLeft: Point,
   size: SizeBox
@@ -31,5 +33,6 @@ export type {
   Rectangle,
   Triangle,
   Ellipse,
+  Primitive,
   Area
 }

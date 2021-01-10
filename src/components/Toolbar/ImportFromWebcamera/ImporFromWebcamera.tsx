@@ -9,6 +9,7 @@ import { drawPrimitive } from "../../../functionsTS/canvasHelper"
 import classes from "./ImportFromWebcamera.module.css"
 import * as actionTypes from "../../../store/actions"
 import { ImageUI } from '../../../modelsTS/ImagUI'
+import Button from '../../Button/Button'
 
 const ImportFromWebcamera = (props: any) => {
   const [cameraOn, setCameraOn] = useState(false);
@@ -85,7 +86,7 @@ const ImportFromWebcamera = (props: any) => {
             props.saveImageData(imgData);
           }
         } else {
-          drawPrimitive(ctx, props.selectedObj.type, props.selectedObj);
+          drawPrimitive(ctx, props.selectedObj);
         }
       }
       const imgData = ctx?.getImageData(0, 0, canv.width, canv.height);
@@ -123,11 +124,13 @@ const ImportFromWebcamera = (props: any) => {
         <div className={classes.Module}>
           <video ref={videoRef} id="webcamera">Something went wrong...</video>
           <canvas ref={canvasEl}></canvas>
-          <button id="startbutton" onClick={captureHandler}>Take photo</button>
+          {!captured ? (
+            <Button callback={captureHandler}>Take photo</Button>
+          ) : null}
           {captured ? (
-          <div>
-            <button onClick={reshootHandler}>New photo</button>
-            <button onClick={addToHolstHandler}>Add to holst</button>
+          <div className={classes.ButtonWrapper}>
+            <Button callback={reshootHandler}>New photo</Button>
+            <Button callback={addToHolstHandler}>Add to holst</Button>
           </div>
       ) : null}
         </div>
@@ -139,8 +142,8 @@ const ImportFromWebcamera = (props: any) => {
 
 const mapStateToProps = (state: any) => {
   return {
-    selectedObj: state.present.editor.selectedObject,
-    canvas: state.present.editor.canvas
+    selectedObj: state.editor.present.selectedObject,
+    canvas: state.editor.present.canvas
   }
 }
 

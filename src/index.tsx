@@ -13,10 +13,10 @@ import { ignoreActions } from 'redux-ignore'
 import * as actionTypes from "./store/actions"
 
 const rootReducer = combineReducers({
-  editor: ignoreActions(editorReducer, []),
+  editor: undoable(editorReducer),
   view: viewReducer
 })
-export const store = createStore(undoable(rootReducer));
+export const store = createStore(rootReducer);
 
 ReactDOM.render(
   <Provider store={store}>

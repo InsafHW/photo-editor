@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { VscNewFile } from "react-icons/vsc"
 import classes from "./CreateNewHolst.module.css"
 import Backdrop from "../../Backdrop/Backdrop"
+import Button from "../../Button/Button"
 import * as actionTypes from "../../../store/actions"
 import { connect } from "react-redux"
 
@@ -24,16 +25,16 @@ const CreateNewHolst = (props: any) => {
           <div className={classes.Inputs}>
             <div>
               <span>Ширина: </span>
-              <input type="number" value={width} onChange={(e) => setWidth(+e.target.value)}/>
+              <input type="number" min="1" value={width} onChange={(e) => setWidth(+e.target.value)}/>
             </div>
             <div>
               <span>Высота: </span>
-              <input type="number" value={height} onChange={(e) => setHeight(+e.target.value)}/>
+              <input type="number" min="1" value={height} onChange={(e) => setHeight(+e.target.value)}/>
             </div>
           </div>
           <div className={classes.buttons}>
-            <button onClick={createHandler}>OK</button>
-            <button onClick={() => setCreating(false)}>CANCEL</button>
+            <Button callback={createHandler}>OK</Button>
+            <Button callback={() => setCreating(false)}>CANCEL</Button>
           </div>
         </div>
       ) : null}

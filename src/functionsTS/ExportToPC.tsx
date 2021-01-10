@@ -1,4 +1,4 @@
-export function downloadToPC(imgData: ImageData): void {
+export function downloadToPC(imgData: ImageData, ext: string): void {
   const canvas = document.createElement('canvas');
   canvas.width = imgData.width;
   canvas.height = imgData.height
@@ -7,8 +7,13 @@ export function downloadToPC(imgData: ImageData): void {
   ctx.putImageData(imgData, 0, 0);
   const a = document.createElement('a');
   document.body.appendChild(a);
-  a.href = canvas.toDataURL();
-  a.download = 'image.png';
+  if (ext === 'jpeg') {
+    a.href = canvas.toDataURL('image/jpeg', 1);
+    a.download = `image.jpg`;
+  } else {
+    a.href = canvas.toDataURL();
+    a.download = 'image.png';
+  }
   a.click();
   document.body.removeChild(a);
 }

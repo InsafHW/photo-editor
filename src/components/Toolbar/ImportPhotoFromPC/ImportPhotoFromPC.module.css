@@ -13,15 +13,6 @@
   transition: 0.2s all ease;
 }
 
-/* .example:hover::before {
-  content: 'Импортировать с ПК';
-  position: absolute;
-  right: calc(5vh);
-  bottom: 20px;
-  color: #ff2400;
-  width: 100%;
-} */
-
 .Icon {
   cursor: pointer;
   transition: all 0.2s linear;

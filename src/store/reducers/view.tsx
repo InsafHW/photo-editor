@@ -1,9 +1,11 @@
+import { Tool } from '../../modelsTS/Tool'
 import * as actionTypes from "../actions"
 
 const initialState = {
   fillColor: '#000',
   text: '',
   fontSize: 24,
+  currentTool: Tool.rectangle,
 }
 
 const reducer = (state = initialState, action: any) => {
@@ -19,15 +21,9 @@ const reducer = (state = initialState, action: any) => {
         fontSize: action.value
       }
     case actionTypes.CHANGE_TEXT:
-      console.log(action)
       return {
         ...state,
         text: action.value
-      }
-    case actionTypes.CHANGE_FONT_FAMILY:
-      return {
-        ...state,
-        fontFamily: action.value
       }
     default:
       return state

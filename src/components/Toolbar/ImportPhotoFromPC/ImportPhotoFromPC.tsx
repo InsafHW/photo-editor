@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { IoAttachOutline } from "react-icons/io5"
 
-import {drawPrimitive, redraw} from "../../../functionsTS/canvasHelper"
+import {drawPrimitive, redraw, drawText} from "../../../functionsTS/canvasHelper"
 
 import * as actionTypes from "../../../store/actions"
 import classes from './ImportPhotoFromPC.module.css'
@@ -39,11 +39,9 @@ const importPhotoFromPC = (props: any) => {
               props.saveImageData(imgData);
             }
           } else if (props.selectedObj.type === 'text') {
-            console.log('[TEXT]', props.selectedObj)
-            // ctx?.fillText('PRIVE', 10, 200)
-            ctx?.fillText(props.selectedObj.text, props.selectedObj.topLeft.x, props.selectedObj.topLeft.y)
+            drawText(props.selectedObj, ctx);
           } else {
-            drawPrimitive(ctx, props.selectedObj.type, props.selectedObj);
+            drawPrimitive(ctx, props.selectedObj);
           }
           const imgData = ctx?.getImageData(0, 0, canv.width, canv.height);
           props.saveImageData(imgData);
@@ -81,8 +79,8 @@ const importPhotoFromPC = (props: any) => {
 
 const mapStateToProps = (state: any) => {
   return {
-    selectedObj: state.present.editor.selectedObject,
-    canvas: state.present.editor.canvas
+    selectedObj: state.editor.present.selectedObject,
+    canvas: state.editor.present.canvas
   }
 }
 

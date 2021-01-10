@@ -3,5 +3,6 @@ export enum Tool {
   triangle = 'triangle',
   ellipse = 'ellipse',
   text = 'text',
-  area = 'area'
+  area = 'area',
+  filter = 'filter'
 }

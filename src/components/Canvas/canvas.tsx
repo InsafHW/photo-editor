@@ -2,30 +2,30 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { connect } from "react-redux"
 
-import {redraw, drawPrimitive} from "../../functionsTS/canvasHelper"
+import {redraw, drawPrimitive, drawText} from "../../functionsTS/canvasHelper"
 import { Point } from '../../modelsTS/Point'
 import * as actionTypes from "../../store/actions"
 import {SelObj} from '../../modelsTS/SelObj'
-import {Rectangle, Triangle, Ellipse, Area} from "../../modelsTS/Primitives"
+import {Rectangle, Triangle, Ellipse, Area, Primitive} from "../../modelsTS/Primitives"
 import {TextUI} from "../../modelsTS/TextUI"
 
 import classes from "./canvas.module.css"
 import { ImageUI } from '../../modelsTS/ImagUI'
 
-const RESIZING_RADIUS = 10;
+const RESIZING_RADIUS = 12;
 const MIN_WIDTH = 20;
 const MIN_HEIGHT = 20;
 
 
 const Canvas = (props: any) => {
   const [downpos, setDownpos] = useState<Point>({x: 0, y: 0});
-  const canvasEl = useRef<HTMLCanvasElement|null>(null);
-  const [inFigure, setInFigure] = useState<Boolean>(false);
-  const shapeBorder = useRef({left: 0, top: 0, width: 0, height: 0});
+  const [inFigure, setInFigure] = useState(false);
   const [drawing, setDrawing] = useState(false);
   const [resizing, setResizing] = useState(false);
-  const movedelta = useRef(0);
-  const resizePos = useRef(0);
+  const [moved, setMoved] = useState(false);
+  const [resizeArea, setResizeArea] = useState(0);
+  const [basicShape, setBasicShape] = useState({left: 0, top: 0, width: 0, height: 0})
+  const canvasEl = useRef<HTMLCanvasElement|null>(null);
   const img = useRef<HTMLImageElement|null>(null);
 
   const updateShapeBorder = (loc: Point) => {
@@ -45,12 +45,12 @@ const Canvas = (props: any) => {
       top = loc.y;
     }
 
-    shapeBorder.current = {
+    setBasicShape({
       left: left,
       top: top,
       width: width,
       height: height
-    }
+    })
   }
 
   const getMousePosition = (x: number, y: number) => {
@@ -63,15 +63,15 @@ const Canvas = (props: any) => {
     }
   }
 
-  const makeFigure = (type: any) => {
+  const makeFigure = (type: string) => {
     let object: any = {
       topLeft: {
-        x: shapeBorder.current.left,
-        y: shapeBorder.current.top
+        x: basicShape.left,
+        y: basicShape.top
       },
       size: {
-        width: shapeBorder.current.width,
-        height: shapeBorder.current.height
+        width: basicShape.width,
+        height: basicShape.height
       },
       fillColor: props.fillColor,
       type: type
@@ -171,19 +171,19 @@ const Canvas = (props: any) => {
   const drawResizingElements = () => {
     const ctx = canvasEl.current?.getContext('2d');
     ctx?.beginPath();
-    ctx?.arc(shapeBorder.current.left - RESIZING_RADIUS, shapeBorder.current.top - RESIZING_RADIUS, RESIZING_RADIUS, 0, Math.PI * 2);
+    ctx?.arc(basicShape.left - RESIZING_RADIUS, basicShape.top - RESIZING_RADIUS, RESIZING_RADIUS, 0, Math.PI * 2);
     ctx?.stroke();
     ctx?.beginPath();
-    ctx?.arc(shapeBorder.current.left + shapeBorder.current.width + RESIZING_RADIUS, shapeBorder.current.top - RESIZING_RADIUS, RESIZING_RADIUS, 0, Math.PI * 2);
+    ctx?.arc(basicShape.left + basicShape.width + RESIZING_RADIUS, basicShape.top - RESIZING_RADIUS, RESIZING_RADIUS, 0, Math.PI * 2);
     ctx?.stroke();
     ctx?.beginPath();
-    ctx?.arc(shapeBorder.current.left - RESIZING_RADIUS, shapeBorder.current.top + shapeBorder.current.height + RESIZING_RADIUS, RESIZING_RADIUS, 0, Math.PI * 2);
+    ctx?.arc(basicShape.left - RESIZING_RADIUS, basicShape.top + basicShape.height + RESIZING_RADIUS, RESIZING_RADIUS, 0, Math.PI * 2);
     ctx?.stroke();
     ctx?.beginPath();
-    ctx?.arc(shapeBorder.current.left + shapeBorder.current.width + RESIZING_RADIUS, shapeBorder.current.top + shapeBorder.current.height + RESIZING_RADIUS, RESIZING_RADIUS, 0, Math.PI * 2);
+    ctx?.arc(basicShape.left + basicShape.width + RESIZING_RADIUS, basicShape.top + basicShape.height + RESIZING_RADIUS, RESIZING_RADIUS, 0, Math.PI * 2);
     ctx?.stroke();
     ctx?.beginPath();
-    ctx?.strokeRect(shapeBorder.current.left, shapeBorder.current.top, shapeBorder.current.width, shapeBorder.current.height);
+    ctx?.strokeRect(basicShape.left, basicShape.top, basicShape.width, basicShape.height);
     ctx?.closePath();
   }
 
@@ -191,6 +191,7 @@ const Canvas = (props: any) => {
     const ctx = canvasEl.current?.getContext('2d');
     if (ctx) {
       ctx.fillStyle = props.fillColor;
+      ctx.font = `normal ${props.fontSize}px Open-sans, sans-serif`;
     }
     if (props.selectedObj.type === 'image') {
       if (img.current && img.current.src === props.selectedObj.src || img.current && !props.selectedObj.src) {
@@ -199,26 +200,30 @@ const Canvas = (props: any) => {
           const image = new Image();
           image.src = props.selectedObj.src;
           image.onload = () => {
-          const width = image.width;
-          const height = image.height;
-          shapeBorder.current.left = props.selectedObj.topLeft.x;
-          shapeBorder.current.top = props.selectedObj.topLeft.y;
-          shapeBorder.current.width = width;
-          shapeBorder.current.height = height;
-          img.current = image;
-          ctx?.drawImage(image, shapeBorder.current.left, shapeBorder.current.top, width, height)
+            const width = image.width;
+            const height = image.height;
+            setBasicShape({
+              left: props.selectedObj.topLeft.x,
+              top: props.selectedObj.topLeft.y,
+              width: width,
+              height: height
+            })
+            img.current = image;
+            ctx?.drawImage(image, props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, width, height)
         }
       }
     } else if (props.selectedObj.type === 'text') {
-      console.log('TEXT')
-        if (ctx) {
-          ctx.font = `normal ${props.fontSize}px ${props.fontFamily}`;
-          ctx.fillStyle = props.fillColor;
-        }
-        ctx?.strokeRect(shapeBorder.current.left - props.fontSize, shapeBorder.current.top, props.fontSize * (props.text.length) / 1.75, props.fontSize);
-        ctx?.fillText(props.text, props.selectedObj.topLeft.x , props.selectedObj.topLeft.y + (+props.fontSize));
+      const textObj: TextUI = {
+        ...props.selectedObj,
+        text: props.text,
+        fontSize: props.fontSize
+      }
+      drawText(textObj, ctx);
+      if (props.text !== props.selectedObj.text || props.fontSize !== props.selectedObj.fontSize) {
+        props.changeSelectedObject(textObj);
+      }
     } else {
-      drawPrimitive(ctx, props.selectedObj.type, props.selectedObj);
+      drawPrimitive(ctx, props.selectedObj);
     }
   }
 
@@ -259,27 +264,19 @@ const Canvas = (props: any) => {
               setInFigure(true);
               drawResizingElements();
             } else if (pointInResizing) {
-              resizePos.current = pointInResizing;
+              setResizeArea(pointInResizing);
               setResizing(true);
             } else {
               setDrawing(true);
             }
-            // if (props.currentTool === 'text') {
-            //   const ctx = canvasEl.current?.getContext('2d');
-            //   if (!ctx) return;
-            //   ctx.font = `normal ${props.fontSize}px Open-sans, sans-serif`;
-            //   ctx.fillStyle = props.fillColor;
-            //   ctx?.strokeRect(loc.x - props.fontSize, loc.y, props.fontSize * (props.text.length) / 1.75, props.fontSize);
-            //   ctx?.fillText(props.text, loc.x - props.fontSize, loc.y + props.fontSize / 1.3)
-            // }
             setDownpos(loc);
           }
         }}
         onMouseMove={(e) => {
           const loc = getMousePosition(e.clientX, e.clientY);
           const ctx = canvasEl.current?.getContext('2d');
-          if (drawing && loc && ctx && props.currentTool !== 'text') {
-            movedelta.current = Math.abs(e.movementX) + Math.abs(e.movementY);
+          if (drawing && loc && ctx) {
+            setMoved(!!(Math.abs(e.movementX) + Math.abs(e.movementY)));
             updateShapeBorder(loc);
             redraw(ctx, props.data, props.data.width, props.data.height);
             if (props.selectedObj) {
@@ -288,123 +285,132 @@ const Canvas = (props: any) => {
             if (ctx) {
               ctx.fillStyle = props.fillColor;
             }
-            const object: Rectangle | Triangle | Ellipse = {
+            const object: any = {
               topLeft: {
-                x: shapeBorder.current.left,
-                y: shapeBorder.current.top
+                x: basicShape.left,
+                y: basicShape.top
               },
               size: {
-                width: shapeBorder.current.width,
-                height: shapeBorder.current.height
+                width: basicShape.width,
+                height: basicShape.height
               },
               fillColor: props.fillColor,
               type: props.currentTool
             }
             if (props.currentTool === 'text') {
+              object.fontSize = props.fontSize;
+              object.text = props.text;
               if (ctx) {
-                ctx.font = `normal ${props.fontSize}px Arial`;
+                ctx.font = `normal ${props.fontSize}px Open-sans sans-serif`;
               }
-              ctx.beginPath();
-              ctx.fillText(props.text, shapeBorder.current.left, shapeBorder.current.top + (+props.fontSize));
+              drawText(object as TextUI, ctx);
             } else {
-              drawPrimitive(ctx, props.currentTool, object);
+              drawPrimitive(ctx, object as Primitive);
             }
             drawResizingElements();
           } else if (inFigure && loc && canvasEl.current) {
             if (ctx) {
               ctx.fillStyle = props.fillColor;
             }
-            movedelta.current = Math.abs(e.movementX) + Math.abs(e.movementY);
-            shapeBorder.current.left += e.movementX;
-            shapeBorder.current.top += e.movementY;
-            const object = {
+            setMoved(!!(Math.abs(e.movementX) + Math.abs(e.movementY)));
+            setBasicShape({
+              left: basicShape.left + e.movementX,
+              top: basicShape.top + e.movementY,
+              width: basicShape.width,
+              height: basicShape.height
+            })
+            const object: any = {
               topLeft: {
-                x: shapeBorder.current.left,
-                y: shapeBorder.current.top
+                x: basicShape.left,
+                y: basicShape.top
               },
               size: {
-                width: shapeBorder.current.width,
-                height: shapeBorder.current.height
+                width: basicShape.width,
+                height: basicShape.height
               },
               fillColor: props.fillColor,
               type: props.selectedObj.type
             }
             redraw(ctx, props.data, props.data.width, props.data.height);
             if (object.type === 'image' && img.current) {
-              ctx?.drawImage(img.current, shapeBorder.current.left, shapeBorder.current.top, shapeBorder.current.width, shapeBorder.current.height)
+              ctx?.drawImage(img.current, basicShape.left, basicShape.top, basicShape.width, basicShape.height)
+            } else if (object.type === 'text') {
+              object.text = props.text;
+              object.fontSize = props.fontSize;
+              drawText(object as TextUI, ctx);
+            } else {
+              drawPrimitive(ctx, object as Primitive);
             }
-            drawPrimitive(ctx, props.selectedObj.type, object);
             drawResizingElements();
           } else if (resizing && loc && canvasEl.current) {
-            movedelta.current = Math.abs(e.movementX) + Math.abs(e.movementY);
-            let isWidthMin = shapeBorder.current.width < MIN_WIDTH;
-            let isHeightMin = shapeBorder.current.height < MIN_HEIGHT;
-            if (resizePos.current === 1) {
-              if (!isWidthMin || e.movementX < 0) {
-                shapeBorder.current.left += e.movementX;
-                shapeBorder.current.width += (-e.movementX);
-              }
-              if (!isHeightMin || e.movementY < 0) {
-                shapeBorder.current.top += e.movementY;
-                shapeBorder.current.height += (-e.movementY);
-              }
+            setMoved(!!(Math.abs(e.movementX) + Math.abs(e.movementY)));
+            let isWidthMin = basicShape.width < MIN_WIDTH;
+            let isHeightMin = basicShape.height < MIN_HEIGHT;
+            if (resizeArea === 1) {
+              setBasicShape({
+                left: !isWidthMin || e.movementX < 0 ? basicShape.left + e.movementX : basicShape.left,
+                top: !isHeightMin || e.movementY < 0 ? basicShape.top + e.movementY : basicShape.top,
+                width: !isWidthMin || e.movementX < 0 ? basicShape.width - e.movementX : basicShape.width,
+                height: !isHeightMin || e.movementY < 0 ? basicShape.height - e.movementY : basicShape.height
+              })
             }
-            else if (resizePos.current === 2) {
-              if (!isWidthMin || e.movementX > 0) {
-                shapeBorder.current.width += (e.movementX);
-              }
-              if (!isHeightMin || e.movementY < 0) {
-                shapeBorder.current.top += e.movementY;
-                shapeBorder.current.height += (-e.movementY);
-              }
-            } else if (resizePos.current === 3) {
-              if (!isWidthMin || e.movementX < 0) {
-                shapeBorder.current.left += e.movementX;
-                shapeBorder.current.width += (-e.movementX);
-              }
-              if (!isHeightMin || e.movementY > 0) {
-                shapeBorder.current.height += (e.movementY);
-              }
-              
-            } else if (resizePos.current === 4) {
-              if (!isWidthMin || e.movementX > 0) {
-                shapeBorder.current.width += e.movementX;
-              }
-              if (!isHeightMin || e.movementY > 0) {
-                shapeBorder.current.height += e.movementY;
-              }
+            else if (resizeArea === 2) {
+              setBasicShape({
+                left: basicShape.left,
+                top: !isHeightMin || e.movementY < 0 ? basicShape.top + e.movementY : basicShape.top,
+                width: !isWidthMin || e.movementX > 0 ? basicShape.width + e.movementX : basicShape.width,
+                height: !isHeightMin || e.movementY < 0 ? basicShape.height - e.movementY : basicShape.height
+              })
+            } else if (resizeArea === 3) {
+              setBasicShape({
+                left: !isWidthMin || e.movementX < 0 ? basicShape.left + e.movementX : basicShape.left,
+                top: basicShape.top,
+                width: !isWidthMin || e.movementX < 0 ? basicShape.width - e.movementX : basicShape.width,
+                height: !isHeightMin || e.movementY > 0 ? basicShape.height + e.movementY : basicShape.height
+              })
+            } else if (resizeArea === 4) {
+              setBasicShape({
+                left: basicShape.left,
+                top: basicShape.top,
+                width: !isWidthMin || e.movementX > 0 ? basicShape.width + e.movementX : basicShape.width,
+                height: !isHeightMin || e.movementY > 0 ? basicShape.height + e.movementY : basicShape.height
+              })
             }
-            const object: Rectangle | Triangle | Ellipse | ImageUI | TextUI = {
+            const object: any = {
               topLeft: {
-                x: shapeBorder.current.left,
-                y: shapeBorder.current.top
+                x: basicShape.left,
+                y: basicShape.top
               },
               size: {
-                width: shapeBorder.current.width,
-                height: shapeBorder.current.height
+                width: basicShape.width,
+                height: basicShape.height
               },
               fillColor: props.fillColor,
               type: props.selectedObj.type
             }
             redraw(ctx, props.data, props.data.width, props.data.height);
             if (props.selectedObj && props.selectedObj.type === 'image' && img.current) {
-              ctx?.drawImage(img.current, shapeBorder.current.left, shapeBorder.current.top, shapeBorder.current.width, shapeBorder.current.height);
+              ctx?.drawImage(img.current, basicShape.left, basicShape.top, basicShape.width, basicShape.height);
+            } else if (props.selectedObj.type === 'text') {
+              object.text = props.text;
+              object.fontSize = props.fontSize;
+              drawText(object as TextUI, ctx);
             } else {
-              drawPrimitive(ctx, props.selectedObj.type, object);
+              drawPrimitive(ctx, object as Primitive);
             }
             drawResizingElements();
           }
         }}
         onMouseUp={(e) => {
           const ctx = canvasEl.current?.getContext('2d');
-          if (movedelta.current !== 0) {
+          if (moved) {
             if (img.current && (inFigure || resizing)) {
               const object = makeFigure('image');
               props.changeSelectedObject(object);
             }
             if (drawing) {
               redraw(ctx, props.data, props.data.width, props.data.height);
-              if (img.current && props.selectedObj) {
+              if (img.current && props.selectedObj && props.selectedObj.type === 'image') {
                 ctx?.drawImage(img.current, props.selectedObj.topLeft.x, props.selectedObj.topLeft.y, img.current.width, img.current.height);
                 img.current = null;
               }
@@ -415,43 +421,41 @@ const Canvas = (props: any) => {
               props.saveImageData(imgData);
             }
             if (props.selectedObj && props.selectedObj.type === 'image' && resizing && img.current) {
-              img.current.width = shapeBorder.current.width;
-              img.current.height = shapeBorder.current.height;
-              ctx?.drawImage(img.current, shapeBorder.current.left, shapeBorder.current.top, shapeBorder.current.width, shapeBorder.current.height);
+              img.current.width = basicShape.width;
+              img.current.height = basicShape.height;
+              ctx?.drawImage(img.current, basicShape.left, basicShape.top, basicShape.width, basicShape.height);
             }
             else if (drawing || resizing) {
-              const object = makeFigure(props.currentTool);
-              props.changeSelectedObject(object);
-            } else if (movedelta.current !== 0  && inFigure) {
-              const object = makeFigure(props.selectedObj.type);
-              props.changeSelectedObject(object);
+              props.changeSelectedObject(makeFigure(props.currentTool));
+            } else if (inFigure) {
+              props.changeSelectedObject(makeFigure(props.selectedObj.type));
             }
           }
-          movedelta.current = 0;
-          resizePos.current = 0;
+          setResizeArea(0);
           setDrawing(false);
           setInFigure(false);
           setResizing(false);
+          setMoved(false);
         }}
-        ></canvas>
+      ></canvas>
     </div>
   )
 }
 
 const mapStateToProps = (state: any) => {
   return {
-    selectedObj: state.present.editor.selectedObject,
-    data: state.present.editor.canvas,
-    currentTool: state.present.editor.currentTool,
-    fillColor: state.present.view.fillColor,
-    text: state.present.view.text,
-    fontSize: state.present.view.fontSize
+    selectedObj: state.editor.present.selectedObject,
+    data: state.editor.present.canvas,
+    currentTool: state.editor.present.currentTool,
+    fillColor: state.view.fillColor,
+    text: state.view.text,
+    fontSize: state.view.fontSize
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: Function) => {
   return {
-    changeSelectedObject: (newObject: any) => dispatch({type: actionTypes.CHANGE_SELECTED_OBJECT, newObject: newObject}),
+    changeSelectedObject: (newObject: Rectangle | Triangle | Ellipse | ImageUI | TextUI) => dispatch({type: actionTypes.CHANGE_SELECTED_OBJECT, newObject: newObject}),
     saveImageData: (imgData: ImageData) => dispatch({type: actionTypes.SAVE_IMAGE_DATA, data: imgData}),
   }
 }

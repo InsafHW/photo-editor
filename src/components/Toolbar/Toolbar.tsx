@@ -7,15 +7,14 @@ import { Tool } from '../../modelsTS/Tool'
 import * as actionTypes from "../../store/actions"
 import classes from "./Toolbar.module.css"
 import { Filter } from '../../modelsTS/Filter';
-import ImportPhotoFromPC from '../Navbar/ImportPhotoFromPC/ImportPhotoFromPC';
-import ImportFromWebcamera from "../Navbar/ImportFromWebcamera/ImporFromWebcamera"
-import ExportToPC from "../Navbar/ExportToPC/ExportToPC"
-import CreateNewHolst from "../Navbar/CreateNewHolst/CreateNewHolst"
-import ResizeHolst from "../Navbar/ResizeHolst/ResizeHolst"
+import ImportPhotoFromPC from './ImportPhotoFromPC/ImportPhotoFromPC';
+import ImportFromWebcamera from "./ImportFromWebcamera/ImporFromWebcamera"
+import ExportToPC from "./ExportToPC/ExportToPC"
+import CreateNewHolst from "./CreateNewHolst/CreateNewHolst"
 
 const Toolbar = (props: any) => {
   const [showFilters, setShowFilters] = useState(false);
-  let trCls = null, crcCls = null, rectCls = null, textCls = null, areaCls = null;
+  let trCls = null, crcCls = null, rectCls = null, textCls = null, areaCls = null, filterCls = null;
   switch (props.tool) {
     case Tool.triangle:
       trCls = classes.active;
@@ -32,17 +31,23 @@ const Toolbar = (props: any) => {
     case Tool.area:
       areaCls = classes.active;
       break;
+    case Tool.filter:
+      filterCls = classes.active;
+      break;
     default:
       break;
   }
 
+  const applyFilterHandler = (color: Filter) => {
+    props.applyFilter(color);
+    props.changeTool(Tool.rectangle);
+    setShowFilters(false);
+  }
+
   return (
     <div className={classes.Wrapper}>
-      <div className={classes.ChangeHolst}>
+      <div className={classes.TopBar}>
         <CreateNewHolst />
-        <ResizeHolst />
-      </div>
-      <div className={classes.ImportExportBar}>
         <ImportPhotoFromPC style={{marginTop: '20px'}}/>
         <ImportFromWebcamera />
         <ExportToPC />
@@ -67,9 +72,12 @@ const Toolbar = (props: any) => {
             size="2em" 
             onClick={() => props.changeTool(Tool.text)}/>
         <IoColorFilterOutline 
-            className={classes.tool} 
+            className={[classes.tool, filterCls].join(' ')} 
             size="2em" 
-            onClick={() => setShowFilters(!showFilters)}
+            onClick={() => {
+              setShowFilters(!showFilters)
+              props.changeTool(Tool.filter)
+            }}
         />
         <IoCutOutline 
             className={classes.tool} 
@@ -84,26 +92,24 @@ const Toolbar = (props: any) => {
     </div>
     {showFilters ? (
       <div className={classes.FilterMenu}>
-        <div className={[classes.Filter, classes.Grey].join(' ')} onClick={() => props.applyFilter(Filter.grey)}></div>
-        <div className={[classes.Filter, classes.Red].join(' ')} onClick={() => props.applyFilter(Filter.red)}></div>
-        <div className={[classes.Filter, classes.Green].join(' ')} onClick={() => props.applyFilter(Filter.green)}></div>
-        <div className={[classes.Filter, classes.Blue].join(' ')} onClick={() => props.applyFilter(Filter.blue)}></div>
+        <div className={[classes.Filter, classes.Grey].join(' ')} onClick={() => applyFilterHandler(Filter.grey)}></div>
+        <div className={[classes.Filter, classes.Red].join(' ')} onClick={() => applyFilterHandler(Filter.red)}></div>
+        <div className={[classes.Filter, classes.Green].join(' ')} onClick={() => applyFilterHandler(Filter.green)}></div>
+        <div className={[classes.Filter, classes.Blue].join(' ')} onClick={() => applyFilterHandler(Filter.blue)}></div>
       </div>
     ) : null}
     {
       trCls || rectCls || crcCls || textCls ? (
         <div className={classes.FillColorMenu}>
-          <SketchPicker color={props.fillColor} onChange={(color) => {
-            console.log(color.hex)
-            props.changeFillColor(color.hex)}}/>
+          <SketchPicker color={props.fillColor} onChange={(color) => props.changeFillColor(color.hex)}/>
         </div>
       ) : null
     }
     {textCls ? (
       <div className={classes.textMenu}>
         <span>Размер текста...</span>
-        <input type="number" min="1" max="90" value={props.fontSize} onChange={(e) => props.changeFontSize(+e.target.value)}/>
-        <input type="text" placeholder="Введите текст..." value={props.text} onChange={(e) => props.changeText(e.target.value)}/>
+        <input type="number" min="1" max="150" value={props.fontSize} onChange={(e) => props.changeFontSize(+e.target.value)}/>
+        <textarea placeholder="Введите текст..." value={props.text} onChange={(e) => props.changeText(e.target.value)}></textarea>
       </div>
     ) : null}
     </div>
@@ -112,10 +118,10 @@ const Toolbar = (props: any) => {
 
 const mapStateToProps = (state: any) => {
   return {
-    tool: state.present.editor.currentTool,
-    fillColor: state.present.view.fillColor,
-    text: state.present.view.text,
-    fontSize: state.present.view.fontSize
+    tool: state.editor.present.currentTool,
+    fillColor: state.view.fillColor,
+    text: state.view.text,
+    fontSize: state.view.fontSize
   }
 }
 

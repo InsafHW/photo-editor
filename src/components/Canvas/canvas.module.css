@@ -13,3 +13,9 @@
   background-color: #fff;
   z-index: 500;
 }
+
+.Canvas .TextContent {
+  position: absolute;
+  left: 0;
+  top: 0;
+}

@@ -1,5 +1,6 @@
 import {SelObj} from "../modelsTS/SelObj"
-import {Rectangle, Ellipse, Triangle} from "../modelsTS/Primitives"
+import {Rectangle, Ellipse, Triangle, Primitive} from "../modelsTS/Primitives"
+import { TextUI } from '../modelsTS/TextUI';
 
 export function drawRectangle(object: Rectangle, ctx: CanvasRenderingContext2D | undefined | null): void {
   ctx?.fillRect(object.topLeft.x, object.topLeft.y, object.size.width, object.size.height);
@@ -24,13 +25,22 @@ export function drawTriangle(object: Triangle, ctx: CanvasRenderingContext2D | u
   ctx?.fill();
 }
 
+export function drawText(object: TextUI, ctx: CanvasRenderingContext2D | undefined | null): void {
+  if (!object.text || !ctx) return;
+  let x = object.text.split('\n');
+  for (let i = 0; i < x.length; i++) {
+    ctx?.fillText(x[i], object.topLeft.x, object.topLeft.y + object.fontSize * (i + 1));
+  }
+}
+
 export function redraw(ctx: CanvasRenderingContext2D |null | undefined, data: ImageData, width: number, height: number): void {
   ctx?.clearRect(0, 0, width, height);
   ctx?.putImageData(data, 0, 0);
 }
 
-export function drawPrimitive(ctx: CanvasRenderingContext2D |null | undefined, type: any, object: Rectangle | Triangle | Ellipse): void {
-  switch (type) {
+export function drawPrimitive(ctx: CanvasRenderingContext2D |null | undefined, object: Primitive): void {
+  if (!ctx) return;
+  switch (object.type) {
     case SelObj.ellipse:
       drawEllipse(object as Ellipse, ctx);
       break;
