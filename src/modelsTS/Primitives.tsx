@@ -11,7 +11,7 @@ type Rectangle = {
 type Triangle = {
   topLeft: Point,
   size: SizeBox,
-  type: 'triangle' | 'area',
+  type: 'triangle',
   fillColor: string
 }
 
@@ -22,11 +22,17 @@ type Ellipse = {
   fillColor: string
 }
 
-type Primitive = Rectangle | Triangle | Ellipse
+type Primitive = Rectangle | Triangle | Ellipse;
+
+type Area = {
+  topLeft: Point,
+  size: SizeBox
+}
 
 export type {
-  Primitive,
   Rectangle,
   Triangle,
-  Ellipse
+  Ellipse,
+  Primitive,
+  Area
 }

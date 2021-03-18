@@ -1,4 +1,3 @@
-import { type } from 'os'
 import {Point} from "./Point"
 import { SizeBox } from './SizeBox'
 

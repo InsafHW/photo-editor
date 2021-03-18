@@ -1,0 +1,23 @@
+.example input[type='file'] {
+  outline: 0;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  background-color: #fff;
+  width: 0;
+}
+
+.example {
+  cursor: pointer;
+  position: relative;
+  transition: 0.2s all ease;
+}
+
+.Icon {
+  cursor: pointer;
+  transition: all 0.2s linear;
+}
+
+.Icon:hover {
+  transform: scale(1.2);
+}

@@ -7,15 +7,16 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import editorReducer from "./store/reducers/editor"
-import historyReducer from "./store/reducers/history"
 import viewReducer from "./store/reducers/view"
+import undoable from 'redux-undo';
+import { ignoreActions } from 'redux-ignore'
+import * as actionTypes from "./store/actions"
 
 const rootReducer = combineReducers({
-  editor: editorReducer,
-  history: historyReducer,
+  editor: undoable(editorReducer),
   view: viewReducer
 })
-const store = createStore(rootReducer);
+export const store = createStore(rootReducer);
 
 ReactDOM.render(
   <Provider store={store}>

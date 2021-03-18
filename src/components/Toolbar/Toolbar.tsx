@@ -1,17 +1,20 @@
-import { stat } from 'fs';
 import React, {useState} from 'react';
 import { IoEllipseOutline, IoTriangleOutline, IoSquareOutline, IoColorFilterOutline, IoCutOutline } from "react-icons/io5"
 import {SketchPicker} from "react-color"
 import { BiText, BiSelection } from "react-icons/bi"
 import { connect } from "react-redux";
-import { Tool } from '../../modelsTS/Editor'
+import { Tool } from '../../modelsTS/Tool'
 import * as actionTypes from "../../store/actions"
 import classes from "./Toolbar.module.css"
 import { Filter } from '../../modelsTS/Filter';
+import ImportPhotoFromPC from './ImportPhotoFromPC/ImportPhotoFromPC';
+import ImportFromWebcamera from "./ImportFromWebcamera/ImporFromWebcamera"
+import ExportToPC from "./ExportToPC/ExportToPC"
+import CreateNewHolst from "./CreateNewHolst/CreateNewHolst"
 
 const Toolbar = (props: any) => {
   const [showFilters, setShowFilters] = useState(false);
-  let trCls = null, crcCls = null, rectCls = null, textCls = null, areaCls = null;
+  let trCls = null, crcCls = null, rectCls = null, textCls = null, areaCls = null, filterCls = null;
   switch (props.tool) {
     case Tool.triangle:
       trCls = classes.active;
@@ -28,31 +31,71 @@ const Toolbar = (props: any) => {
     case Tool.area:
       areaCls = classes.active;
       break;
+    case Tool.filter:
+      filterCls = classes.active;
+      break;
     default:
       break;
   }
 
-  const changeCol = (color: any) => {
-    console.log(color)
+  const applyFilterHandler = (color: Filter) => {
+    props.applyFilter(color);
+    props.changeTool(Tool.rectangle);
+    setShowFilters(false);
   }
 
   return (
-    <React.Fragment>
+    <div className={classes.Wrapper}>
+      <div className={classes.TopBar}>
+        <CreateNewHolst />
+        <ImportPhotoFromPC style={{marginTop: '20px'}}/>
+        <ImportFromWebcamera />
+        <ExportToPC />
+      </div>
       <div className={classes.Toolbar}>
-        <IoTriangleOutline className={[classes.tool, trCls, classes.triangle].join(' ')} size="2em" onClick={() => props.changeTool(Tool.triangle)} />
-        <IoEllipseOutline className={[classes.tool, crcCls].join(' ')} size="2em" onClick={() => props.changeTool(Tool.ellipse)}/>
-        <IoSquareOutline className={[classes.tool, rectCls].join(' ')} size="2em" onClick={() => props.changeTool(Tool.rectangle)}/>
-        <BiText className={[classes.tool, textCls].join(' ')} size="2em" onClick={() => props.changeTool(Tool.text)}/>
-        <IoColorFilterOutline className={classes.tool} size="2em" onClick={() => setShowFilters(!showFilters)}/>
-        <IoCutOutline className={classes.tool} size="2em" onClick={() => props.tool === 'area' ? alert('Обрезано!') : alert('Выделите область!')}/>
-        <BiSelection className={[classes.tool, areaCls].join(' ')} size="2em" onClick={() => props.changeTool(Tool.area)}/>
+        <IoTriangleOutline 
+            className={[classes.tool, trCls, classes.triangle].join(' ')} 
+            size="2em" onClick={() => props.changeTool(Tool.triangle)} 
+        />
+        <IoEllipseOutline 
+            className={[classes.tool, crcCls].join(' ')} 
+            size="2em" 
+            onClick={() => props.changeTool(Tool.ellipse)}
+        />
+        <IoSquareOutline 
+            className={[classes.tool, rectCls].join(' ')} 
+            size="2em" 
+            onClick={() => props.changeTool(Tool.rectangle)}
+        />
+        <BiText 
+            className={[classes.tool, textCls].join(' ')} 
+            size="2em" 
+            onClick={() => props.changeTool(Tool.text)}/>
+        <IoColorFilterOutline 
+            className={[classes.tool, filterCls].join(' ')} 
+            size="2em" 
+            onClick={() => {
+              setShowFilters(!showFilters)
+              props.changeTool(Tool.filter)
+            }}
+        />
+        <IoCutOutline 
+            className={classes.tool} 
+            size="2em" 
+            onClick={() => props.tool === 'area' ? props.deleteSelectedArea() : alert('Выделите область!')}
+        />
+        <BiSelection 
+            className={[classes.tool, areaCls].join(' ')} 
+            size="2em" 
+            onClick={() => props.changeTool(Tool.area)}
+        />
     </div>
     {showFilters ? (
       <div className={classes.FilterMenu}>
-        <div className={[classes.Filter, classes.Grey].join(' ')} onClick={() => props.applyFilter(Filter.grey)}></div>
-        <div className={[classes.Filter, classes.Red].join(' ')} onClick={() => props.applyFilter(Filter.red)}></div>
-        <div className={[classes.Filter, classes.Green].join(' ')} onClick={() => props.applyFilter(Filter.green)}></div>
-        <div className={[classes.Filter, classes.Blue].join(' ')} onClick={() => props.applyFilter(Filter.blue)}></div>
+        <div className={[classes.Filter, classes.Grey].join(' ')} onClick={() => applyFilterHandler(Filter.grey)}></div>
+        <div className={[classes.Filter, classes.Red].join(' ')} onClick={() => applyFilterHandler(Filter.red)}></div>
+        <div className={[classes.Filter, classes.Green].join(' ')} onClick={() => applyFilterHandler(Filter.green)}></div>
+        <div className={[classes.Filter, classes.Blue].join(' ')} onClick={() => applyFilterHandler(Filter.blue)}></div>
       </div>
     ) : null}
     {
@@ -65,17 +108,17 @@ const Toolbar = (props: any) => {
     {textCls ? (
       <div className={classes.textMenu}>
         <span>Размер текста...</span>
-        <input type="number" min="1" max="90" value={props.fontSize} onChange={(e) => props.changeFontSize(+e.target.value)}/>
-        <input type="text" placeholder="Введите текст..." value={props.text} onChange={(e) => props.changeText(e.target.value)}/>
+        <input type="number" min="1" max="150" value={props.fontSize} onChange={(e) => props.changeFontSize(+e.target.value)}/>
+        <textarea placeholder="Введите текст..." value={props.text} onChange={(e) => props.changeText(e.target.value)}></textarea>
       </div>
     ) : null}
-    </React.Fragment>
+    </div>
   )
 }
 
 const mapStateToProps = (state: any) => {
   return {
-    tool: state.editor.currentTool,
+    tool: state.editor.present.currentTool,
     fillColor: state.view.fillColor,
     text: state.view.text,
     fontSize: state.view.fontSize

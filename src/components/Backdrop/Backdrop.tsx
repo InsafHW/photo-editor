@@ -3,7 +3,7 @@ import React from 'react'
 
 const backdrop = (props: any) => (
   props.backdrop ? (
-    <div className={classes.Backdrop}></div>
+    <div className={classes.Backdrop} onClick={props.clicked}></div>
   ) : null
 )
 

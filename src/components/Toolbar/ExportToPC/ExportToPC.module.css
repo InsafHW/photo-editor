@@ -1,0 +1,28 @@
+.Icon {
+  cursor: pointer;
+  transition: all 0.2s linear;
+}
+
+.Icon:hover {
+  transform: scale(1.2);
+}
+
+.DownloadModal {
+  position: absolute;
+  width: 60%;
+  height: 60%;
+  background-color: #fff;
+  top: 20%;
+  left: 20%;
+  z-index: 1500;
+  display: flex;
+  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
+}
+
+.Buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
